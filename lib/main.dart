@@ -5,11 +5,21 @@ import 'package:evently_c13_online/ui/home_screen/home_screen.dart';
 import 'package:evently_c13_online/ui/login/login_screen.dart';
 import 'package:evently_c13_online/ui/onbording/onboarding_setup_screen.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+      // options: DefaultFirebaseOptions.currentPlatform, Automatic flutter installation
+      options: FirebaseOptions(
+    apiKey: "AIzaSyBAIsKrLn2Lqs-ctJbCVvttX1T-k4T2uuk",
+    appId: "1:650546700749:android:e17916f94acb0d6571e484",
+    messagingSenderId: "",
+    projectId: "evently-online",
+  ));
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(

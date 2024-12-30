@@ -1,7 +1,8 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
 import 'package:evently_c13_online/ui/shared_widgets/language_switch.dart';
-import 'package:evently_c13_online/ui/shared_widgets/theme_switch.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
+import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -13,12 +14,17 @@ class LoginScreen extends StatelessWidget {
 
   late AppLocalizations appLocalizations;
 
+  var passwordController = TextEditingController();
+  var emailController = TextEditingController();
+  var formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     appLocalizations = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Form(
+          key: formKey,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -26,22 +32,9 @@ class LoginScreen extends StatelessWidget {
                 AppAssets.appVerticalLogoImage,
                 height: MediaQuery.of(context).size.height * 0.25,
               ),
-              TextFormField(
-                style: Theme.of(context).textTheme.bodyLarge,
-                cursorColor: Theme.of(context).primaryColor,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(EvaIcons.email),
-                    hintText: appLocalizations.email),
-              ),
+              buildEmailTextField(context),
               const SizedBox(height: 16),
-              TextFormField(
-                style: Theme.of(context).textTheme.bodyLarge,
-                cursorColor: Theme.of(context).primaryColor,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(EvaIcons.lock),
-                    suffixIcon: const Icon(EvaIcons.eye),
-                    hintText: appLocalizations.password),
-              ),
+              buildPasswordTextField(context),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -53,60 +46,13 @@ class LoginScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              FilledButton(
-                  onPressed: () {}, child: Text(appLocalizations.login)),
+              buildLoginButton(context),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    appLocalizations.dontHaveAccount,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, SignupScreen.routeName);
-                    },
-                    child: Text(appLocalizations.signup),
-                  )
-                ],
-              ),
+              buildSignUpRow(context),
               const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        "or",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-              ),
+              buildORText(context),
               const SizedBox(height: 16),
-              FilledButton(
-                  onPressed: () {},
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: Theme.of(context).primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Theme.of(context).primaryColor),
-                  ),
-                ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Brand(Brands.google),
-                      const SizedBox(width: 8),
-                      Text(appLocalizations.googleLogin),
-                    ],
-                  ),),
+              buildGoogleSignInButton(context),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -117,6 +63,132 @@ class LoginScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildPasswordTextField(BuildContext context) {
+    return TextFormField(
+      style: Theme.of(context).textTheme.bodyLarge,
+      cursorColor: Theme.of(context).primaryColor,
+      controller: passwordController,
+      decoration: InputDecoration(
+          prefixIcon: const Icon(EvaIcons.lock),
+          suffixIcon: const Icon(EvaIcons.eye),
+          hintText: appLocalizations.password),
+      validator: (password) {
+        if (password == null || password.isEmpty) {
+          return "Please enter a valid password";
+        } else if (password.length < 6) {
+          return "Password is too weak atleast should 6 charchters";
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField buildEmailTextField(BuildContext context) {
+    return TextFormField(
+      style: Theme.of(context).textTheme.bodyLarge,
+      cursorColor: Theme.of(context).primaryColor,
+      decoration: InputDecoration(
+          prefixIcon: const Icon(EvaIcons.email),
+          hintText: appLocalizations.email),
+      controller: emailController,
+      validator: (email) {
+        if (email == null || email.isEmpty) {
+          return "Please enter email";
+        }
+        final bool emailValid = RegExp(
+                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(email);
+        if (!emailValid) {
+          return "The email address is badly formatted";
+        }
+        return null;
+      },
+    );
+  }
+
+  FilledButton buildLoginButton(BuildContext context) {
+    return FilledButton(
+        onPressed: () async {
+          if (!formKey.currentState!.validate()) return;
+          try {
+            showLoading(context);
+            UserCredential credential =
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: emailController.text,
+              password: passwordController.text,
+            );
+            hideLoading(context);
+            showMessage(context, "Success", posButtonTitle: "ok");
+          } on FirebaseAuthException catch (e) {
+            hideLoading(context);
+            print("108- exception: ${e}");
+            showMessage(context,
+                e.message ?? "Something went wrong please try again later",
+                posButtonTitle: "ok");
+          }
+        },
+        child: Text(appLocalizations.login));
+  }
+
+  Row buildSignUpRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          appLocalizations.dontHaveAccount,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, SignupScreen.routeName);
+          },
+          child: Text(appLocalizations.signup),
+        )
+      ],
+    );
+  }
+
+  Padding buildORText(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+      child: Row(
+        children: [
+          const Expanded(child: Divider()),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              "or",
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+          const Expanded(child: Divider()),
+        ],
+      ),
+    );
+  }
+
+  FilledButton buildGoogleSignInButton(BuildContext context) {
+    return FilledButton(
+      onPressed: () {},
+      style: FilledButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Theme.of(context).primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Theme.of(context).primaryColor),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Brand(Brands.google),
+          const SizedBox(width: 8),
+          Text(appLocalizations.googleLogin),
+        ],
       ),
     );
   }
