@@ -1,4 +1,6 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
+import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:icons_plus/icons_plus.dart';
@@ -7,6 +9,10 @@ class SignupScreen extends StatelessWidget {
   static const String routeName = '/signup';
   SignupScreen({super.key});
   late AppLocalizations appLocalizations;
+  var emailController = TextEditingController();
+  var passwordController = TextEditingController();
+  var userNameController = TextEditingController();
+  var rePasswordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     appLocalizations = AppLocalizations.of(context)!;
@@ -28,6 +34,7 @@ class SignupScreen extends StatelessWidget {
               decoration: InputDecoration(
                   prefixIcon: const Icon(EvaIcons.person),
                   hintText: appLocalizations.name),
+              controller: userNameController,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -36,6 +43,7 @@ class SignupScreen extends StatelessWidget {
               decoration: InputDecoration(
                   prefixIcon: const Icon(EvaIcons.email),
                   hintText: appLocalizations.email),
+              controller: emailController,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -45,6 +53,7 @@ class SignupScreen extends StatelessWidget {
                   prefixIcon: const Icon(EvaIcons.lock),
                   suffixIcon: const Icon(EvaIcons.eye),
                   hintText: appLocalizations.password),
+              controller: passwordController,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -54,9 +63,10 @@ class SignupScreen extends StatelessWidget {
                   prefixIcon: const Icon(EvaIcons.lock),
                   suffixIcon: const Icon(EvaIcons.eye),
                   hintText: appLocalizations.repassword),
+              controller: rePasswordController,
             ),
             const SizedBox(height: 32),
-            FilledButton(onPressed: (){}, child: Text(appLocalizations.createAccount)),
+            buildCreateAccountButton(context),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -77,4 +87,22 @@ class SignupScreen extends StatelessWidget {
       ),
     );
   }
+
+  FilledButton buildCreateAccountButton(BuildContext context) => FilledButton(
+      onPressed: () async {
+        try {
+          showLoading(context);
+          UserCredential userCredential = await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(
+                  email: emailController.text,
+                  password: passwordController.text);
+          hideLoading(context);
+        } on FirebaseAuthException catch (e) {
+          hideLoading(context);
+          showMessage(context,
+              e.message ?? "Something went wrong please try again later",
+              title: "Error", posButtonText: "ok");
+        }
+      },
+      child: Text(appLocalizations.createAccount));
 }
