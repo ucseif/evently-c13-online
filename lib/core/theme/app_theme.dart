@@ -146,5 +146,9 @@ class AppTheme {
         borderSide: const BorderSide(color: AppColors.red, width: 1),
       ),
     ),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: AppColors.purple,
+
+    )
   );
 }

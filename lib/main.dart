@@ -1,6 +1,7 @@
 import 'package:evently_c13_online/core/providers/locale_provider.dart';
 import 'package:evently_c13_online/core/providers/theme_provider.dart';
 import 'package:evently_c13_online/core/theme/app_theme.dart';
+import 'package:evently_c13_online/ui/home_screen/home_screen.dart';
 import 'package:evently_c13_online/ui/login/login_screen.dart';
 import 'package:evently_c13_online/ui/onbording/onboarding_setup_screen.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
@@ -45,8 +46,9 @@ class MyApp extends StatelessWidget {
         OnboardingSetupScreen.routeName: (_) => OnboardingSetupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
+        HomeScreen.routeName: (_) => HomeScreen(),
       },
-      initialRoute: OnboardingSetupScreen.routeName,
+      initialRoute: HomeScreen.routeName,
     );
   }
 }
