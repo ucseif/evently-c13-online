@@ -1,4 +1,6 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
+import 'package:evently_c13_online/firebase_helpers/firestore/firestore_helper.dart';
+import 'package:evently_c13_online/model/user_dm.dart';
 import 'package:evently_c13_online/ui/shared_widgets/language_switch.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
 import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
@@ -121,8 +123,10 @@ class LoginScreen extends StatelessWidget {
               email: emailController.text,
               password: passwordController.text,
             );
+            UserDM userDm = await getUserFromFirestore(credential.user!.uid);
             hideLoading(context);
-            showMessage(context, "Success", posButtonTitle: "ok");
+            showMessage(context, "Welcome: ${userDm.name}",
+                posButtonTitle: "ok");
           } on FirebaseAuthException catch (e) {
             hideLoading(context);
             print("108- exception: ${e}");

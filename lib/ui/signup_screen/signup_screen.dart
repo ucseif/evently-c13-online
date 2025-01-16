@@ -1,4 +1,6 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
+import 'package:evently_c13_online/firebase_helpers/firestore/firestore_helper.dart';
+import 'package:evently_c13_online/model/user_dm.dart';
 import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,7 @@ class SignupScreen extends StatelessWidget {
 
   var passwordController = TextEditingController();
   var emailController = TextEditingController();
+  var nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class SignupScreen extends StatelessWidget {
               height: MediaQuery.of(context).size.height * 0.25,
             ),
             TextFormField(
+              controller: nameController,
               style: Theme.of(context).textTheme.bodyLarge,
               cursorColor: Theme.of(context).primaryColor,
               decoration: InputDecoration(
@@ -78,11 +82,16 @@ class SignupScreen extends StatelessWidget {
       onPressed: () async {
         try {
           showLoading(context);
-          final credential =
+          final userCredentials =
               await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: emailController.text,
             password: passwordController.text,
           );
+          UserDM newUser = UserDM(
+              id: userCredentials.user!.uid,
+              name: nameController.text,
+              email: emailController.text);
+          await createUserInFirestore(newUser);
           hideLoading(context);
           showMessage(context, "User Created successfully");
         } on FirebaseAuthException catch (e) {
@@ -97,6 +106,11 @@ class SignupScreen extends StatelessWidget {
           }
           showMessage(context, message, posButtonTitle: "ok", title: "Error");
         }
+        // catch (e) {
+        //   print(e);
+        //   hideLoading(context);
+        //   showMessage(context, e.toString(), posButtonTitle: "ok", title: "Error");
+        // }
       },
       child: Text(appLocalizations.createAccount));
 
