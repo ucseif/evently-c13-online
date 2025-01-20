@@ -1,12 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-showLoading(BuildContext context) {
+showLoading(
+  BuildContext context,
+) {
   showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return CupertinoAlertDialog(
+        return const CupertinoAlertDialog(
           content: Row(
             children: [
               Text("Loading..."),
@@ -22,34 +24,36 @@ hideLoading(BuildContext context) {
   Navigator.pop(context);
 }
 
-showMessage(BuildContext context, String message,
-    {String? title,
-    String? posButtonText,
-    String? negButtonText,
-    Function? posButtonClick,
-    Function? negativeButtonClick}) {
+showMessage(
+  BuildContext context,
+  String message, {
+  String? title,
+  String? posButtonTitle,
+  Function? posButtonClick,
+  String? negativeButtonTitle,
+  Function? negativeButtonClick,
+}) {
   showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (context) {
         return CupertinoAlertDialog(
           title: title != null ? Text(title) : null,
           content: Text(message),
           actions: [
-            if (posButtonText != null)
+            if (posButtonTitle != null)
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    hideLoading(context);
                     if (posButtonClick != null) posButtonClick();
                   },
-                  child: Text(posButtonText)),
-            if (negButtonText != null)
+                  child: Text(posButtonTitle)),
+            if (negativeButtonTitle != null)
               TextButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    hideLoading(context);
                     if (negativeButtonClick != null) negativeButtonClick();
                   },
-                  child: Text(negButtonText)),
+                  child: Text(negativeButtonTitle))
           ],
         );
       });

@@ -1,6 +1,8 @@
 import 'package:evently_c13_online/core/providers/locale_provider.dart';
 import 'package:evently_c13_online/core/providers/theme_provider.dart';
 import 'package:evently_c13_online/core/theme/app_theme.dart';
+import 'package:evently_c13_online/ui/add_event/add_event.dart';
+import 'package:evently_c13_online/ui/home_screen/home_screen.dart';
 import 'package:evently_c13_online/ui/login/login_screen.dart';
 import 'package:evently_c13_online/ui/onbording/onboarding_setup_screen.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
@@ -12,12 +14,13 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: FirebaseOptions(
-        apiKey: "AIzaSyDf7oO7fF7We7ChS4aknvi8i-7fVSb1PiA",
-        appId: "1:361454085331:android:198f6916015a7d8d3b6026",
-        messagingSenderId: "",
-        projectId: "evently-mon-c13"),
-  );
+      // options: DefaultFirebaseOptions.currentPlatform, Automatic flutter installation
+      options: FirebaseOptions(
+    apiKey: "AIzaSyBAIsKrLn2Lqs-ctJbCVvttX1T-k4T2uuk",
+    appId: "1:650546700749:android:e17916f94acb0d6571e484",
+    messagingSenderId: "",
+    projectId: "evently-online",
+  ));
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(
@@ -54,8 +57,10 @@ class MyApp extends StatelessWidget {
         OnboardingSetupScreen.routeName: (_) => OnboardingSetupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
+        HomeScreen.routeName: (_) => HomeScreen(),
+        AddEvent.routeName: (_) => AddEvent(),
       },
-      initialRoute: OnboardingSetupScreen.routeName,
+      initialRoute: LoginScreen.routeName,
     );
   }
 }

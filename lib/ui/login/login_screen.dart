@@ -1,4 +1,7 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
+import 'package:evently_c13_online/firebase_helpers/firestore/firestore_helper.dart';
+import 'package:evently_c13_online/model/user_dm.dart';
+import 'package:evently_c13_online/ui/home_screen/home_screen.dart';
 import 'package:evently_c13_online/ui/shared_widgets/language_switch.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
 import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
@@ -13,8 +16,9 @@ class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   late AppLocalizations appLocalizations;
-  var emailController = TextEditingController();
+
   var passwordController = TextEditingController();
+  var emailController = TextEditingController();
   var formKey = GlobalKey<FormState>();
 
   @override
@@ -24,7 +28,6 @@ class LoginScreen extends StatelessWidget {
       body: SafeArea(
         child: Form(
           key: formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -36,15 +39,23 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 16),
               buildPasswordTextField(context),
               const SizedBox(height: 16),
-              buildForgetPasswordButton(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(appLocalizations.forgetPassword),
+                  )
+                ],
+              ),
               const SizedBox(height: 16),
               buildLoginButton(context),
               const SizedBox(height: 16),
-              buildSignUpButton(context),
+              buildSignUpRow(context),
               const SizedBox(height: 16),
-              buildOrText(context),
+              buildORText(context),
               const SizedBox(height: 16),
-              buildGoogleSignIn(context),
+              buildGoogleSignInButton(context),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -59,50 +70,95 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  Widget buildPasswordTextField(BuildContext context) {
+    return TextFormField(
+      style: Theme.of(context).textTheme.bodyLarge,
+      cursorColor: Theme.of(context).primaryColor,
+      controller: passwordController,
+      decoration: InputDecoration(
+          prefixIcon: const Icon(EvaIcons.lock),
+          suffixIcon: const Icon(EvaIcons.eye),
+          hintText: appLocalizations.password),
+      validator: (password) {
+        if (password == null || password.isEmpty) {
+          return "Please enter a valid password";
+        } else if (password.length < 6) {
+          return "Password is too weak atleast should 6 charchters";
+        }
+        return null;
+      },
+    );
+  }
+
+  TextFormField buildEmailTextField(BuildContext context) {
+    return TextFormField(
+      style: Theme.of(context).textTheme.bodyLarge,
+      cursorColor: Theme.of(context).primaryColor,
+      decoration: InputDecoration(
+          prefixIcon: const Icon(EvaIcons.email),
+          hintText: appLocalizations.email),
+      controller: emailController,
+      validator: (email) {
+        if (email == null || email.isEmpty) {
+          return "Please enter email";
+        }
+        final bool emailValid = RegExp(
+                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            .hasMatch(email);
+        if (!emailValid) {
+          return "The email address is badly formatted";
+        }
+        return null;
+      },
+    );
+  }
+
   FilledButton buildLoginButton(BuildContext context) {
     return FilledButton(
         onPressed: () async {
           if (!formKey.currentState!.validate()) return;
           try {
             showLoading(context);
-            UserCredential userCredential = await FirebaseAuth.instance
-                .signInWithEmailAndPassword(
-                    email: emailController.text,
-                    password: passwordController.text);
+            UserCredential credential =
+                await FirebaseAuth.instance.signInWithEmailAndPassword(
+              email: emailController.text,
+              password: passwordController.text,
+            );
+            UserDM.currentUser =
+                await getUserFromFirestore(credential.user!.uid);
+
             hideLoading(context);
+            Navigator.pushNamed(context, HomeScreen.routeName);
           } on FirebaseAuthException catch (e) {
             hideLoading(context);
+            print("108- exception: ${e}");
             showMessage(context,
                 e.message ?? "Something went wrong please try again later",
-                title: "Error", posButtonText: "ok");
+                posButtonTitle: "ok");
           }
         },
         child: Text(appLocalizations.login));
   }
 
-  FilledButton buildGoogleSignIn(BuildContext context) {
-    return FilledButton(
-      onPressed: () {},
-      style: FilledButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).primaryColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Theme.of(context).primaryColor),
+  Row buildSignUpRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          appLocalizations.dontHaveAccount,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Brand(Brands.google),
-          const SizedBox(width: 8),
-          Text(appLocalizations.googleLogin),
-        ],
-      ),
+        TextButton(
+          onPressed: () {
+            Navigator.pushNamed(context, SignupScreen.routeName);
+          },
+          child: Text(appLocalizations.signup),
+        )
+      ],
     );
   }
 
-  Padding buildOrText(BuildContext context) {
+  Padding buildORText(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32.0),
       child: Row(
@@ -121,72 +177,25 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Row buildSignUpButton(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          appLocalizations.dontHaveAccount,
-          style: Theme.of(context).textTheme.bodyLarge,
+  FilledButton buildGoogleSignInButton(BuildContext context) {
+    return FilledButton(
+      onPressed: () {},
+      style: FilledButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Theme.of(context).primaryColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: Theme.of(context).primaryColor),
         ),
-        TextButton(
-          onPressed: () {
-            Navigator.pushNamed(context, SignupScreen.routeName);
-          },
-          child: Text(appLocalizations.signup),
-        )
-      ],
-    );
-  }
-
-  Row buildForgetPasswordButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: () {},
-          child: Text(appLocalizations.forgetPassword),
-        )
-      ],
-    );
-  }
-
-  TextFormField buildPasswordTextField(BuildContext context) {
-    return TextFormField(
-      style: Theme.of(context).textTheme.bodyLarge,
-      cursorColor: Theme.of(context).primaryColor,
-      decoration: InputDecoration(
-          prefixIcon: const Icon(EvaIcons.lock),
-          suffixIcon: const Icon(EvaIcons.eye),
-          hintText: appLocalizations.password),
-      controller: passwordController,
-      validator: (password) {
-        if (password == null || password.isEmpty) {
-          return "Please enter a valid password";
-        }
-        if (password.length < 6) {
-          return "Password should be atleast 6 character";
-        }
-        return null;
-      },
-    );
-  }
-
-  TextFormField buildEmailTextField(BuildContext context) {
-    return TextFormField(
-      style: Theme.of(context).textTheme.bodyLarge,
-      cursorColor: Theme.of(context).primaryColor,
-      decoration: InputDecoration(
-          prefixIcon: const Icon(EvaIcons.email),
-          hintText: appLocalizations.email),
-      controller: emailController,
-      validator: (email) {
-        final bool emailValid = RegExp(
-                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-            .hasMatch(email ?? "");
-        if (!emailValid) return "Please enter a valid email";
-        return null;
-      },
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Brand(Brands.google),
+          const SizedBox(width: 8),
+          Text(appLocalizations.googleLogin),
+        ],
+      ),
     );
   }
 }
