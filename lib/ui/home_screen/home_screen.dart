@@ -1,5 +1,6 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
 import 'package:evently_c13_online/core/theme/app_colors.dart';
+import 'package:evently_c13_online/ui/add_event/add_event.dart';
 import 'package:evently_c13_online/ui/home_screen/tabs/home_tab/home_tab.dart';
 import 'package:evently_c13_online/ui/home_screen/tabs/love_tab/love_tab.dart';
 import 'package:evently_c13_online/ui/home_screen/tabs/map_tab/map_tab.dart';
@@ -27,47 +28,69 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.purple,
-        shape:const CircleBorder(side: BorderSide(width: 5, color: AppColors.white)),
-        child: const Icon(Icons.add, color: AppColors.white,size: 30,),
+        floatingActionButton: buildFab(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        backgroundColor: Colors.white,
+        bottomNavigationBar: buildBottomNavigation(),
+        body: tabs[currentIndex]);
+  }
 
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      backgroundColor: Colors.white,
-      bottomNavigationBar: BottomNavigationBar(
-
+  Widget buildBottomNavigation() {
+    return BottomAppBar(
+      padding: EdgeInsets.zero,
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 4,
+      clipBehavior: Clip.hardEdge,
+      child: BottomNavigationBar(
         onTap: (index) {
           setState(() {
             currentIndex = index;
           });
         },
         currentIndex: currentIndex,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
               activeIcon: ImageIcon(AssetImage(AppAssets.homeActive)),
-              backgroundColor: AppColors.purple,
+              backgroundColor: AppColors.blue,
               icon: ImageIcon(AssetImage(AppAssets.homeIcon)),
               label: 'home'),
           BottomNavigationBarItem(
-              activeIcon: ImageIcon(AssetImage(AppAssets.mapActive)),
-              backgroundColor: AppColors.purple,
-              icon: ImageIcon(AssetImage(AppAssets.mapIcon)),
+              activeIcon: const ImageIcon(AssetImage(AppAssets.mapActive)),
+              backgroundColor: AppColors.blue,
+              icon: Container(
+                  margin: const EdgeInsets.only(right: 40),
+                  child: const ImageIcon(AssetImage(AppAssets.mapIcon))),
               label: 'map'),
           BottomNavigationBarItem(
-              activeIcon: ImageIcon(AssetImage(AppAssets.loveActive)),
-              backgroundColor: AppColors.purple,
-              icon: ImageIcon(AssetImage(AppAssets.loveIcon)),
+              activeIcon: const ImageIcon(AssetImage(AppAssets.loveActive)),
+              backgroundColor: AppColors.blue,
+              icon: Container(
+                  margin: const EdgeInsets.only(left: 32),
+                  child: const ImageIcon(AssetImage(AppAssets.loveIcon))),
               label: 'love'),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
               activeIcon: ImageIcon(AssetImage(AppAssets.profileActive)),
-              backgroundColor: AppColors.purple,
+              backgroundColor: AppColors.blue,
               icon: ImageIcon(AssetImage(AppAssets.profileIcon)),
               label: 'profile'),
         ],
       ),
-      body: tabs[currentIndex]
+    );
+  }
+
+  FloatingActionButton buildFab() {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.pushNamed(context, AddEvent.routeName);
+      },
+      backgroundColor: AppColors.blue,
+      shape: const CircleBorder(
+          side: BorderSide(width: 5, color: AppColors.white)),
+      child: const Icon(
+        Icons.add,
+        color: AppColors.white,
+        size: 30,
+      ),
     );
   }
 }

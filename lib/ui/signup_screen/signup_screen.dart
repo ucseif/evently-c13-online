@@ -1,6 +1,7 @@
 import 'package:evently_c13_online/core/assets/app_assets.dart';
 import 'package:evently_c13_online/firebase_helpers/firestore/firestore_helper.dart';
 import 'package:evently_c13_online/model/user_dm.dart';
+import 'package:evently_c13_online/ui/home_screen/home_screen.dart';
 import 'package:evently_c13_online/ui/utils/dialog_utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -92,8 +93,10 @@ class SignupScreen extends StatelessWidget {
               name: nameController.text,
               email: emailController.text);
           await createUserInFirestore(newUser);
+
           hideLoading(context);
-          showMessage(context, "User Created successfully");
+          UserDM.currentUser = newUser;
+          Navigator.pushReplacementNamed(context, HomeScreen.routeName);
         } on FirebaseAuthException catch (e) {
           hideLoading(context);
           String message = "Something went wrong please try again later";
