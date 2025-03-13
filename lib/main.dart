@@ -1,6 +1,7 @@
 import 'package:evently_c13_online/core/providers/locale_provider.dart';
 import 'package:evently_c13_online/core/providers/theme_provider.dart';
 import 'package:evently_c13_online/core/theme/app_theme.dart';
+import 'package:evently_c13_online/firebase_helpers/firestore/firestore_helper.dart';
 import 'package:evently_c13_online/model/event_dm.dart';
 import 'package:evently_c13_online/ui/add_event/add_event.dart';
 import 'package:evently_c13_online/ui/event_details/event_details.dart';
@@ -9,6 +10,7 @@ import 'package:evently_c13_online/ui/login/login_screen.dart';
 import 'package:evently_c13_online/ui/onbording/on_boarding.dart';
 import 'package:evently_c13_online/ui/onbording/onboarding_setup_screen.dart';
 import 'package:evently_c13_online/ui/signup_screen/signup_screen.dart';
+import 'package:evently_c13_online/ui/update_event/update_event.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -63,6 +65,10 @@ class MyApp extends StatelessWidget {
         HomeScreen.routeName: (_) => HomeScreen(),
         AddEvent.routeName: (_) => AddEvent(),
         OnBoarding.routeName: (_) => OnBoarding(),
+        UpdateEvent.routeName: (context){
+          var event = ModalRoute.of(context)?.settings.arguments as EventDM;
+          return UpdateEvent(eventDM: event,);
+        },
         EventDetails.routeName: (context){
           var event = ModalRoute.of(context)?.settings.arguments as EventDM;
           return EventDetails(eventModel: event);

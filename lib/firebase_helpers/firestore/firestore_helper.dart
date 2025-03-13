@@ -30,6 +30,17 @@ Future<void> addEvent(EventDM event) {
   var eventsCollection = FirebaseFirestore.instance.collection("events");
   return eventsCollection.add(event.toJson());
 }
+
+Future<void> updateEvent(EventDM event) {
+  var eventsCollection = FirebaseFirestore.instance.collection("events");
+  return eventsCollection.doc(event.ownerId).update(event.toJson());
+}
+
+Future<void> deleteEvent(EventDM event) async {
+  var eventsCollection = FirebaseFirestore.instance.collection("events");
+  await eventsCollection.doc(event.ownerId).delete();
+}
+
 //
 ///Assignment // Future<void> updateEvent(EventDM newEvent){}
 //
