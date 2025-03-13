@@ -1,13 +1,12 @@
-import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:evently_c13_online/core/assets/app_assets.dart';
-import 'package:evently_c13_online/core/providers/theme_provider.dart';
-import 'package:evently_c13_online/ui/login/login_screen.dart';
+import 'package:evently_c13_online/core/providers/theme_provider.dart';import 'package:evently_c13_online/ui/onbording/on_boarding.dart';
 import 'package:evently_c13_online/ui/shared_widgets/language_switch.dart';
 import 'package:evently_c13_online/ui/shared_widgets/theme_switch.dart';
 import 'package:flutter/material.dart';
-import 'package:icons_plus/icons_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+
 class OnboardingSetupScreen extends StatelessWidget {
   static const String routeName = "/OnboardingSetupScreen";
 
@@ -70,7 +69,7 @@ class OnboardingSetupScreen extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, LoginScreen.routeName);
+                  Navigator.pushReplacementNamed(context, OnBoarding.routeName);
                 },
                 child: Text(appLocalizations.letsStart),
               )

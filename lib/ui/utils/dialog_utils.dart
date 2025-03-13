@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 showLoading(
@@ -8,7 +7,7 @@ showLoading(
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        return const CupertinoAlertDialog(
+        return const AlertDialog(
           content: Row(
             children: [
               Text("Loading..."),
@@ -36,7 +35,7 @@ showMessage(
   showDialog(
       context: context,
       builder: (context) {
-        return CupertinoAlertDialog(
+        return AlertDialog(
           title: title != null ? Text(title) : null,
           content: Text(message),
           actions: [

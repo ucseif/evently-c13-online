@@ -88,14 +88,20 @@ class SignupScreen extends StatelessWidget {
             email: emailController.text,
             password: passwordController.text,
           );
-          UserDM newUser = UserDM(
-              id: userCredentials.user!.uid,
-              name: nameController.text,
-              email: emailController.text);
-          await createUserInFirestore(newUser);
+          print("91- User registered: ${userCredentials.user?.uid}");
 
+          UserDM newUser = UserDM(
+            id: userCredentials.user!.uid,
+            name: nameController.text,
+            email: emailController.text,
+          );
+
+          await createUserInFirestore(newUser);
           hideLoading(context);
+
           UserDM.currentUser = newUser;
+
+          print("104- Navigating to HomeScreen...");
           Navigator.pushReplacementNamed(context, HomeScreen.routeName);
         } on FirebaseAuthException catch (e) {
           hideLoading(context);

@@ -40,9 +40,10 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider:
   animated_toggle_switch:
-  firebase_core: ^3.9.0
-  firebase_auth: ^5.3.4
-  cloud_firestore: ^5.6.1
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.6.5
+  dots_indicator: ^2.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

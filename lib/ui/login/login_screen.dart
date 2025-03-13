@@ -124,14 +124,29 @@ class LoginScreen extends StatelessWidget {
               email: emailController.text,
               password: passwordController.text,
             );
-            UserDM.currentUser =
-                await getUserFromFirestore(credential.user!.uid);
+            print("127- User signed in: ${credential.user?.uid}");
 
+            UserDM? user = await getUserFromFirestore(credential.user!.uid);
+            if (user == null) {
+              hideLoading(context);
+              showMessage(context, "User data not found in Firestore",
+                  posButtonTitle: "ok");
+              return;
+            }
+            //
+            UserDM.currentUser = user;
             hideLoading(context);
+            //
+            print("141- Navigating to HomeScreen...");
+            // UserDM.currentUser =
+            // await getUserFromFirestore(credential.user!.uid);
+            //
+            // hideLoading(context);
+
             Navigator.pushNamed(context, HomeScreen.routeName);
           } on FirebaseAuthException catch (e) {
             hideLoading(context);
-            print("108- exception: ${e}");
+            print("144- exception: ${e}");
             showMessage(context,
                 e.message ?? "Something went wrong please try again later",
                 posButtonTitle: "ok");

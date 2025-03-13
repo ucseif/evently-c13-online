@@ -14,6 +14,7 @@ class CategoriesTabs extends StatelessWidget {
     return DefaultTabController(
       length: categories.length,
       child: TabBar(
+        padding: EdgeInsets.only(left: 0),
           indicator: BoxDecoration(
             borderRadius: BorderRadius.circular(50),
             border: Border.all(color: AppColors.white),
@@ -44,6 +45,7 @@ class CategoriesTabs extends StatelessWidget {
             Icon(
               category.icon,
             ),
+            SizedBox(width: 12,),
             Text(category.name),
           ],
         ),
